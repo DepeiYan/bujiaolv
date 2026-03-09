@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.screentracker.ui.home.HomeFragment"
+        android:label="今日"
+        />
+
+    <fragment
+        android:id="@+id/navigation_statistics"
+        android:name="com.screentracker.ui.statistics.StatisticsFragment"
+        android:label="趋势"
+        />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.screentracker.ui.settings.SettingsFragment"
+        android:label="设置"
+        />
+
+</navigation>

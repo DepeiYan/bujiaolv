@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.55"
+        android:scaleY="0.55"
+        android:translateX="24.3"
+        android:translateY="24.3">
+        <!-- 香蕉主体 -->
+        <path
+            android:fillColor="#4CAF50"
+            android:pathData="M30,75c-5,-2 -10,-8 -8,-18c2,-12 12,-22 22,-28c8,-4 18,-6 26,-4c4,1 6,4 5,8c-1,3 -4,5 -8,4c-6,-1 -13,0 -19,3c-8,4 -15,12 -16,20c-1,6 2,10 6,12c2,1 3,3 2,5c-1,2 -3,3 -5,2c-6,-2 -11,-6 -15,-12c-2,-3 -4,-7 -5,-11c-1,-4 0,-8 2,-12c4,-8 12,-15 20,-19c8,-4 18,-5 27,-3c3,1 5,4 4,7c-1,3 -4,5 -7,4c-7,-2 -15,0 -22,3c-10,5 -18,14 -20,24c-1,5 1,9 4,12c2,2 2,4 1,6c-1,1 -3,2 -5,1z" />
+        <!-- 香蕉顶部 -->
+        <path
+            android:fillColor="#388E3C"
+            android:pathData="M78,25c1,-2 3,-3 5,-2c2,1 3,3 2,5c-1,2 -3,3 -5,2c-2,-1 -3,-3 -2,-5z" />
+        <!-- 香蕉底部 -->
+        <path
+            android:fillColor="#388E3C"
+            android:pathData="M25,72c-1,-1 -1,-3 0,-4c1,-1 3,-1 4,0c1,1 1,3 0,4c-1,1 -3,1 -4,0z" />
+        <!-- 高光 -->
+        <path
+            android:fillColor="#81C784"
+            android:pathData="M35,65c-2,-1 -3,-4 -2,-6c3,-8 10,-15 18,-19c6,-3 13,-4 20,-3c2,0 3,2 3,4c0,2 -2,3 -4,3c-6,-1 -12,0 -17,3c-6,3 -12,9 -14,16c-1,2 -3,3 -5,2z" />
+        <!-- 笑脸眼睛 -->
+        <path
+            android:fillColor="#1B5E20"
+            android:pathData="M42,45c0,-1.5 1.5,-3 3,-3s3,1.5 3,3s-1.5,3 -3,3s-3,-1.5 -3,-3z" />
+        <path
+            android:fillColor="#1B5E20"
+            android:pathData="M58,42c0,-1.5 1.5,-3 3,-3s3,1.5 3,3s-1.5,3 -3,3s-3,-1.5 -3,-3z" />
+        <!-- 笑脸嘴巴 -->
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#1B5E20"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:pathData="M45,52c3,3 8,3 11,0" />
+    </group>
+</vector>
