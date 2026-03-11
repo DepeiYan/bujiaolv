@@ -12,7 +12,7 @@
   <a href="#功能介绍">功能介绍</a> •
   <a href="#安装方法">安装方法</a> •
   <a href="#使用指南">使用指南</a> •
-  <a href="./ScreenTracker-v1.0-debug.apk">下载 APK</a>
+  <a href="./app-release_v0.1.apk">下载 APK</a>
 </p>
 
 ---
@@ -78,11 +78,25 @@
 
 ### 首页 - 今日统计
 
-<p align="center">
-  <img src="screenshots/home_day.png" width="280" alt="天视图">
-  <img src="screenshots/home_week.png" width="280" alt="周视图">
-  <img src="screenshots/home_month.png" width="280" alt="月视图">
-</p>
+<table align="center">
+  <tr>
+    <td align="center" width="33%">
+      <img src="screenshots/home_day.png" width="100%" alt="天视图">
+      <br>
+      <sub>天视图</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="screenshots/home_week.png" width="100%" alt="周视图">
+      <br>
+      <sub>周视图</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="screenshots/home_month.png" width="100%" alt="月视图">
+      <br>
+      <sub>月视图</sub>
+    </td>
+  </tr>
+</table>
 
 首页展示今日屏幕使用统计，包括：
 - 顶部 Tab 切换天/周/月视图
@@ -94,9 +108,15 @@
 
 ### 趋势页面
 
-<p align="center">
-  <img src="screenshots/statistics.png" width="320" alt="趋势页面">
-</p>
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <img src="screenshots/statistics.png" width="100%" alt="趋势页面">
+      <br>
+      <sub>焦虑热力图与趋势</sub>
+    </td>
+  </tr>
+</table>
 
 趋势页面展示近90天的焦虑活跃度热力图：
 - 90天数据可视化，颜色表示焦虑等级
@@ -105,9 +125,15 @@
 
 ### 设置页面
 
-<p align="center">
-  <img src="screenshots/settings.png" width="320" alt="设置页面">
-</p>
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <img src="screenshots/settings.png" width="100%" alt="设置页面">
+      <br>
+      <sub>监控与提醒设置</sub>
+    </td>
+  </tr>
+</table>
 
 设置页面包含：
 - 屏幕监控服务开关
