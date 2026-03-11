@@ -106,7 +106,7 @@
 - 焦虑等级评估卡片
 - 可折叠的详细使用记录
 
-### 趋势页面
+### 趋势 和 设置
 
 <table align="center">
   <tr>
@@ -115,26 +115,21 @@
       <br>
       <sub>焦虑热力图与趋势</sub>
     </td>
+    <td align="center" width="50%">
+      <img src="screenshots/settings.png" width="100%" alt="设置页面">
+      <br>
+      <sub>设置提醒</sub>
+    </td>
   </tr>
 </table>
 
+#### 趋势
 趋势页面展示近90天的焦虑活跃度热力图：
 - 90天数据可视化，颜色表示焦虑等级
 - 点击"击碎焦虑"按钮触发动画效果
 - 焦虑趋势折线图展示变化趋势
 
-### 设置页面
-
-<table align="center">
-  <tr>
-    <td align="center" width="50%">
-      <img src="screenshots/settings.png" width="100%" alt="设置页面">
-      <br>
-      <sub>监控与提醒设置</sub>
-    </td>
-  </tr>
-</table>
-
+#### 设置页面
 设置页面包含：
 - 屏幕监控服务开关
 - 使用提醒设置
@@ -147,7 +142,7 @@
 
 ### 方式一：直接安装 APK
 
-1. 下载 [不蕉绿-v1.0-release.apk](./outputs/不蕉绿-v1.0-release.apk)
+1. 下载 [不蕉绿-v1.0-release.apk](./app-release_v0.1.apk)
 2. 在 Android 设备上打开 APK 文件
 3. 允许安装未知来源应用（如提示）
 4. 完成安装
