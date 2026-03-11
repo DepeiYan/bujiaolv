@@ -63,4 +63,12 @@
 
     <!-- 图标背景色 (芭蕉绿) -->
     <color name="icon_bg_sage">#7D9B76</color>
+
+    <!-- 焦虑等级颜色 -->
+    <color name="anxiety_level_0">#9E9E9E</color>
+    <color name="anxiety_level_1">#4CAF50</color>
+    <color name="anxiety_level_2">#8BC34A</color>
+    <color name="anxiety_level_3">#FFC107</color>
+    <color name="anxiety_level_4">#FF9800</color>
+    <color name="anxiety_level_5">#F44336</color>
 </resources>

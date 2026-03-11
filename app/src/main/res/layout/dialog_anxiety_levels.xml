@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80000000">
+
+    <!-- 点击外部关闭区域 -->
+    <View
+        android:id="@+id/view_outside"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- 底部弹出的卡片 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 拖动指示条 -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:background="?attr/colorOutlineVariant" />
+
+            <!-- 标题 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:text="焦虑等级说明"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:text="左右滑动查看所有等级"
+                android:textSize="13sp"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <!-- ViewPager2 等级展示 -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewpager_levels"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:layout_marginTop="16dp" />
+
+            <!-- 指示器 -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="8dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:tabBackground="@drawable/tab_indicator_selector"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabPaddingEnd="4dp"
+                app:tabPaddingStart="4dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

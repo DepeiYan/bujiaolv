@@ -12,7 +12,7 @@
   <a href="#功能介绍">功能介绍</a> •
   <a href="#安装方法">安装方法</a> •
   <a href="#使用指南">使用指南</a> •
-  <a href="./app-release_v0.1.apk">下载 APK</a>
+  <a href="./app-release-v0.1.apk">下载 APK</a>
 </p>
 
 ---
@@ -142,7 +142,7 @@
 
 ### 方式一：直接安装 APK
 
-1. 下载 [不蕉绿-v1.0-release.apk](./app-release_v0.1.apk)
+1. 下载 [不蕉绿-v1.0-release.apk](./app-release-v0.1.apk)
 2. 在 Android 设备上打开 APK 文件
 3. 允许安装未知来源应用（如提示）
 4. 完成安装

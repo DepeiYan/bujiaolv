@@ -108,15 +108,23 @@ class ScreenMonitorService : Service() {
 
     /**
      * 创建通知渠道 (Android 8.0+)
+     * 使用 IMPORTANCE_MIN 让通知尽可能不显眼
      */
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "不蕉绿屏幕监控",
-            NotificationManager.IMPORTANCE_LOW
+            "屏幕监控",
+            NotificationManager.IMPORTANCE_MIN
         ).apply {
-            description = "持续监控屏幕使用情况"
+            description = "屏幕使用统计"
             setShowBadge(false)
+            // 禁用声音和振动
+            setSound(null, null)
+            enableVibration(false)
+            // 不在状态栏显示图标
+            setShowBadge(false)
+            // 锁屏不显示
+            lockscreenVisibility = Notification.VISIBILITY_SECRET
         }
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)
@@ -124,6 +132,7 @@ class ScreenMonitorService : Service() {
 
     /**
      * 创建前台服务通知
+     * 使用最小化显示，减少对用户干扰
      */
     private fun createNotification(): Notification {
         val pendingIntent = PendingIntent.getActivity(
@@ -134,12 +143,18 @@ class ScreenMonitorService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("不蕉绿运行中")
-            .setContentText("正在记录您的屏幕使用情况")
+            .setContentTitle("屏幕监控")
+            .setContentText("运行中")
             .setSmallIcon(R.drawable.ic_monitor)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setSilent(true)
+            // 设置为本地模式，不显示在锁屏
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+            // 最小化优先级
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            // 不显示时间戳
+            .setShowWhen(false)
             .build()
     }
 }

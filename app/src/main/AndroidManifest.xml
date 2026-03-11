@@ -30,6 +30,13 @@
             </intent-filter>
         </activity>
 
+        <!-- 焦虑等级说明页面 -->
+        <activity
+            android:name=".ui.AnxietyLevelsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.ScreenTracker" />
+
         <!-- 屏幕监控前台服务 -->
         <service
             android:name=".service.ScreenMonitorService"

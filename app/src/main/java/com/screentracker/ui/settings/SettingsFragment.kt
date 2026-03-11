@@ -1,7 +1,12 @@
 package com.screentracker.ui.settings
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +35,7 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupServiceToggle()
+        setupAutostartHint()
         setupReminderToggle()
         setupGoalSettings()
         observeData()
@@ -41,10 +47,123 @@ class SettingsFragment : Fragment() {
             if (isChecked) {
                 requireContext().startForegroundService(serviceIntent)
                 viewModel.setServiceRunning(true)
+                // 显示自启动提示
+                checkAndShowAutostartHint()
             } else {
                 requireContext().stopService(serviceIntent)
                 viewModel.setServiceRunning(false)
             }
+        }
+    }
+
+    private fun setupAutostartHint() {
+        binding.btnAutostartSettings.setOnClickListener {
+            openAutostartSettings()
+        }
+        
+        binding.btnNotificationSettings.setOnClickListener {
+            openNotificationSettings()
+        }
+    }
+    
+    private fun openNotificationSettings() {
+        val intent = Intent().apply {
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                    // Android 8.0+ 跳转到通知渠道设置
+                    action = Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS
+                    putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+                    putExtra(Settings.EXTRA_CHANNEL_ID, ScreenMonitorService.CHANNEL_ID)
+                }
+                else -> {
+                    // 低版本跳转到应用通知设置
+                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    data = Uri.parse("package:${requireContext().packageName}")
+                }
+            }
+        }
+        startActivity(intent)
+    }
+
+    private fun checkAndShowAutostartHint() {
+        // 检查是否需要显示自启动提示
+        if (!isAutostartEnabled(requireContext())) {
+            binding.layoutAutostartHint.visibility = View.VISIBLE
+        } else {
+            binding.layoutAutostartHint.visibility = View.GONE
+        }
+    }
+
+    private fun isAutostartEnabled(context: Context): Boolean {
+        // 由于 Android 没有标准 API 检查自启动权限，
+        // 我们使用一种启发式方法：检查是否曾经引导过用户
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        return prefs.getBoolean("autostart_checked", false)
+    }
+
+    private fun openAutostartSettings() {
+        val context = requireContext()
+        val intent = Intent()
+
+        try {
+            // 尝试不同厂商的自启动设置页面
+            when {
+                // 小米
+                Build.BRAND.equals("xiaomi", ignoreCase = true) -> {
+                    intent.component = ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                    )
+                }
+                // 华为
+                Build.BRAND.equals("huawei", ignoreCase = true) -> {
+                    intent.component = ComponentName(
+                        "com.huawei.systemmanager",
+                        "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
+                    )
+                }
+                // OPPO
+                Build.BRAND.equals("oppo", ignoreCase = true) -> {
+                    intent.component = ComponentName(
+                        "com.coloros.safecenter",
+                        "com.coloros.safecenter.permission.startup.StartupAppListActivity"
+                    )
+                }
+                // VIVO
+                Build.BRAND.equals("vivo", ignoreCase = true) -> {
+                    intent.component = ComponentName(
+                        "com.vivo.permissionmanager",
+                        "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"
+                    )
+                }
+                // 三星
+                Build.BRAND.equals("samsung", ignoreCase = true) -> {
+                    intent.component = ComponentName(
+                        "com.samsung.android.lool",
+                        "com.samsung.android.sm.ui.battery.BatteryActivity"
+                    )
+                }
+                // 其他品牌跳转到应用详情页
+                else -> {
+                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    intent.data = Uri.parse("package:${context.packageName}")
+                }
+            }
+
+            startActivity(intent)
+
+            // 标记已引导用户
+            context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("autostart_checked", true)
+                .apply()
+
+        } catch (e: Exception) {
+            // 如果特定页面打不开，跳转到应用详情页
+            val fallbackIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:${context.packageName}")
+            }
+            startActivity(fallbackIntent)
         }
     }
 
@@ -93,6 +212,12 @@ class SettingsFragment : Fragment() {
         viewModel.serviceRunning.observe(viewLifecycleOwner) { running ->
             binding.switchService.isChecked = running
             binding.tvServiceStatus.text = if (running) "监控服务运行中" else "监控服务已停止"
+            // 服务开启时检查自启动提示
+            if (running) {
+                checkAndShowAutostartHint()
+            } else {
+                binding.layoutAutostartHint.visibility = View.GONE
+            }
         }
 
         viewModel.reminderEnabled.observe(viewLifecycleOwner) { enabled ->

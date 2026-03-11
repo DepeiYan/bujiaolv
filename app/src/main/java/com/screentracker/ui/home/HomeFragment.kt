@@ -328,6 +328,11 @@ class HomeFragment : Fragment() {
         )
         gradientDrawable.cornerRadius = 16f * resources.displayMetrics.density
         binding.layoutAnxietyContent.background = gradientDrawable
+
+        // 点击焦虑等级卡片跳转到等级说明页面
+        binding.cardAnxietyLevel.setOnClickListener {
+            com.screentracker.ui.AnxietyLevelsActivity.start(requireContext())
+        }
     }
 
     // ===== 根据当前模式更新图表 =====
