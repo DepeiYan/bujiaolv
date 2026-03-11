@@ -6,18 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.NavOptions
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.screentracker.R
 import com.screentracker.databinding.FragmentStatisticsBinding
+import com.screentracker.ui.home.HomeViewModel
 
 class StatisticsFragment : Fragment() {
 
     private var _binding: FragmentStatisticsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: StatisticsViewModel by viewModels()
+    // 共享 HomeViewModel，用于点击跳转天视图
+    private val homeViewModel: HomeViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,37 +37,44 @@ class StatisticsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupCharts()
-        setupRangeSelector()
+        setupHeatmap()
+        setupAnxietyChart()
         observeData()
+
+        // 固定使用90天数据
+        viewModel.setDaysRange(90)
     }
 
-    private fun setupCharts() {
-        // 点亮次数折线图
-        binding.chartCount.apply {
-            description.isEnabled = false
-            legend.isEnabled = false
-            setTouchEnabled(true)
-            isDragEnabled = true
-            setScaleEnabled(false)
-            setPinchZoom(false)
-            setDrawGridBackground(false)
-
-            xAxis.apply {
-                position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(false)
-                granularity = 1f
+    // ===== 焦虑热力图设置 =====
+    private fun setupHeatmap() {
+        // 点击格子跳转到对应天
+        binding.heatmapAnxiety.onCellClickListener = { dateStr ->
+            // 解析日期字符串 yyyy-MM-dd
+            val parts = dateStr.split("-")
+            val year = parts.getOrNull(0)?.toIntOrNull()
+            val month = parts.getOrNull(1)?.toIntOrNull()?.minus(1)  // Calendar 月份从0开始
+            val day = parts.getOrNull(2)?.toIntOrNull()
+            if (year != null && month != null && day != null) {
+                // 切换 HomeViewModel 到天视图并跳转到指定日期
+                homeViewModel.jumpToDay(year, month, day)
+                // 导航到首页（singleTop 避免重复创建 Fragment）
+                val navOptions = NavOptions.Builder()
+                    .setLaunchSingleTop(true)
+                    .setPopUpTo(R.id.nav_graph, false)
+                    .build()
+                findNavController().navigate(R.id.navigation_home, null, navOptions)
             }
-            axisLeft.apply {
-                setDrawGridLines(true)
-                granularity = 1f
-                axisMinimum = 0f
-            }
-            axisRight.isEnabled = false
         }
 
-        // 使用时长折线图
-        binding.chartDuration.apply {
+        // 击碎焦虑按钮
+        binding.btnBreakAnxiety.setOnClickListener {
+            binding.heatmapAnxiety.startBreakAnimation()
+        }
+    }
+
+    // ===== 焦虑值折线图设置 =====
+    private fun setupAnxietyChart() {
+        binding.chartAnxiety.apply {
             description.isEnabled = false
             legend.isEnabled = false
             setTouchEnabled(true)
@@ -77,10 +90,20 @@ class StatisticsFragment : Fragment() {
             }
             axisLeft.apply {
                 setDrawGridLines(true)
-                axisMinimum = 0f
+                granularity = 1f
+                axisMinimum = 0.5f
+                axisMaximum = 5.5f
+                labelCount = 5
                 valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
-                        return String.format("%.1f时", value)
+                        return when (value.toInt()) {
+                            1 -> "LV.1"
+                            2 -> "LV.2"
+                            3 -> "LV.3"
+                            4 -> "LV.4"
+                            5 -> "LV.5"
+                            else -> ""
+                        }
                     }
                 }
             }
@@ -88,118 +111,65 @@ class StatisticsFragment : Fragment() {
         }
     }
 
-    private fun setupRangeSelector() {
-        binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            val days = when {
-                checkedIds.contains(R.id.chip7days) -> 7
-                checkedIds.contains(R.id.chip14days) -> 14
-                checkedIds.contains(R.id.chip30days) -> 30
-                else -> 7
-            }
-            viewModel.setDaysRange(days)
-        }
-    }
-
+    // ===== 数据观察 =====
     private fun observeData() {
+        // 每日点亮次数 -> 更新热力图和焦虑值折线图
         viewModel.dailyCounts.observe(viewLifecycleOwner) { dailyCounts ->
-            if (dailyCounts.isEmpty()) {
-                binding.tvNoCountData.visibility = View.VISIBLE
-                binding.chartCount.visibility = View.GONE
-                return@observe
+            // 更新热力图数据（固定90天）
+            val heatmapData = dailyCounts?.associate { it.dateStr to it.count } ?: emptyMap()
+            binding.heatmapAnxiety.setData(heatmapData)
+
+            // 更新焦虑值折线图
+            if (!dailyCounts.isNullOrEmpty()) {
+                binding.tvNoAnxietyData.visibility = View.GONE
+                binding.chartAnxiety.visibility = View.VISIBLE
+                updateAnxietyChart(dailyCounts)
+            } else {
+                binding.tvNoAnxietyData.visibility = View.VISIBLE
+                binding.chartAnxiety.visibility = View.GONE
             }
-            binding.tvNoCountData.visibility = View.GONE
-            binding.chartCount.visibility = View.VISIBLE
+        }
+    }
 
-            val entries = dailyCounts.mapIndexed { index, item ->
-                Entry(index.toFloat(), item.count.toFloat())
-            }
-
-            val labels = dailyCounts.map { it.dateStr.substring(5) } // 只显示 MM-dd
-
-            val dataSet = LineDataSet(entries, "点亮次数").apply {
-                color = ContextCompat.getColor(requireContext(), R.color.md_theme_primary)
-                setCircleColor(ContextCompat.getColor(requireContext(), R.color.md_theme_primary))
-                lineWidth = 2f
-                circleRadius = 4f
-                setDrawValues(true)
-                valueTextSize = 10f
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return value.toInt().toString()
-                    }
-                }
-                mode = LineDataSet.Mode.CUBIC_BEZIER
-                setDrawFilled(true)
-                fillColor = ContextCompat.getColor(requireContext(), R.color.md_theme_primary_container)
-            }
-
-            binding.chartCount.apply {
-                xAxis.valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        val index = value.toInt()
-                        return if (index in labels.indices) labels[index] else ""
-                    }
-                }
-                data = LineData(dataSet)
-                invalidate()
-            }
-
-            // 更新统计摘要
-            val totalCount = dailyCounts.sumOf { it.count }
-            val avgCount = totalCount / dailyCounts.size
-            val maxCount = dailyCounts.maxOf { it.count }
-            binding.tvCountSummary.text =
-                "总计 ${totalCount} 次 · 日均 ${avgCount} 次 · 最高 ${maxCount} 次"
+    // ===== 更新焦虑值折线图 =====
+    private fun updateAnxietyChart(dailyCounts: List<com.screentracker.data.db.DailyCount>) {
+        val entries = dailyCounts.mapIndexed { index, item ->
+            val anxietyLevel = viewModel.countToAnxietyLevel(item.count).toFloat()
+            Entry(index.toFloat(), anxietyLevel)
         }
 
-        viewModel.dailyDurations.observe(viewLifecycleOwner) { dailyDurations ->
-            if (dailyDurations.isEmpty()) {
-                binding.tvNoDurationData.visibility = View.VISIBLE
-                binding.chartDuration.visibility = View.GONE
-                return@observe
-            }
-            binding.tvNoDurationData.visibility = View.GONE
-            binding.chartDuration.visibility = View.VISIBLE
+        val labels = dailyCounts.map { it.dateStr.substring(5) } // MM-dd
 
-            val entries = dailyDurations.mapIndexed { index, item ->
-                Entry(index.toFloat(), viewModel.durationToHours(item.totalDuration))
-            }
+        // 为每个点设置对应的颜色
+        val colors = dailyCounts.map { item ->
+            val level = viewModel.countToAnxietyLevel(item.count)
+            viewModel.getAnxietyColor(level)
+        }
 
-            val labels = dailyDurations.map { it.dateStr.substring(5) }
+        val dataSet = LineDataSet(entries, "焦虑值").apply {
+            // 使用渐变色线条
+            color = ContextCompat.getColor(requireContext(), R.color.md_theme_primary)
+            lineWidth = 2f
+            circleRadius = 5f
+            // 为每个圆点设置不同颜色
+            setDrawValues(false)
+            mode = LineDataSet.Mode.LINEAR
+            setDrawFilled(false)
 
-            val dataSet = LineDataSet(entries, "使用时长").apply {
-                color = ContextCompat.getColor(requireContext(), R.color.md_theme_tertiary)
-                setCircleColor(ContextCompat.getColor(requireContext(), R.color.md_theme_tertiary))
-                lineWidth = 2f
-                circleRadius = 4f
-                setDrawValues(true)
-                valueTextSize = 10f
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return String.format("%.1f", value)
-                    }
+            // 设置圆点颜色列表
+            circleColors = colors
+        }
+
+        binding.chartAnxiety.apply {
+            xAxis.valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    val index = value.toInt()
+                    // 只显示部分标签避免拥挤
+                    return if (index in labels.indices && index % 5 == 0) labels[index] else ""
                 }
-                mode = LineDataSet.Mode.CUBIC_BEZIER
-                setDrawFilled(true)
-                fillColor = ContextCompat.getColor(requireContext(), R.color.md_theme_tertiary_container)
             }
-
-            binding.chartDuration.apply {
-                xAxis.valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        val index = value.toInt()
-                        return if (index in labels.indices) labels[index] else ""
-                    }
-                }
-                data = LineData(dataSet)
-                invalidate()
-            }
-
-            // 更新时长摘要
-            val totalDuration = dailyDurations.sumOf { it.totalDuration }
-            val avgDuration = totalDuration / dailyDurations.size
-            binding.tvDurationSummary.text =
-                "总计 ${viewModel.formatDuration(totalDuration)} · 日均 ${viewModel.formatDuration(avgDuration)}"
+            data = LineData(dataSet)
+            invalidate()
         }
     }
 

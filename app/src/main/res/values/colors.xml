@@ -1,48 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Material Design 3 色彩方案 - 紫色系 -->
-    <color name="md_theme_primary">#6750A4</color>
+    <!--
+        抗焦虑色系配色方案
+        首选: 鼠尾草绿 (Sage Green) — 低饱和度绿色, 安全/生机
+        次选: 雾霾蓝 (Dusty Blue) — 冷调蓝色, 宁静/稳定
+        辅助: 大地色 (Earth Tones) — 米白/浅灰, 踏实/低刺激
+        特殊: 薰衣草紫 (Lavender) — 内在平静/助眠
+    -->
+
+    <!-- ===== 浅色主题 (Light Theme) ===== -->
+
+    <!-- Primary: 鼠尾草绿 -->
+    <color name="md_theme_primary">#5B7553</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
-    <color name="md_theme_primary_container">#EADDFF</color>
-    <color name="md_theme_onPrimaryContainer">#21005D</color>
+    <color name="md_theme_primary_container">#D8E8CF</color>
+    <color name="md_theme_onPrimaryContainer">#1A3313</color>
 
-    <color name="md_theme_secondary">#625B71</color>
+    <!-- Secondary: 雾霾蓝 -->
+    <color name="md_theme_secondary">#6B8BA4</color>
     <color name="md_theme_onSecondary">#FFFFFF</color>
-    <color name="md_theme_secondary_container">#E8DEF8</color>
-    <color name="md_theme_onSecondaryContainer">#1D192B</color>
+    <color name="md_theme_secondary_container">#D3E4F1</color>
+    <color name="md_theme_onSecondaryContainer">#1D3548</color>
 
-    <color name="md_theme_tertiary">#7D5260</color>
+    <!-- Tertiary: 薰衣草紫 -->
+    <color name="md_theme_tertiary">#8B7BAF</color>
     <color name="md_theme_onTertiary">#FFFFFF</color>
-    <color name="md_theme_tertiary_container">#FFD8E4</color>
-    <color name="md_theme_onTertiaryContainer">#31111D</color>
+    <color name="md_theme_tertiary_container">#E8DEF8</color>
+    <color name="md_theme_onTertiaryContainer">#2D1F4E</color>
 
-    <color name="md_theme_error">#B3261E</color>
+    <!-- Error -->
+    <color name="md_theme_error">#BA1A1A</color>
     <color name="md_theme_onError">#FFFFFF</color>
-    <color name="md_theme_error_container">#F9DEDC</color>
-    <color name="md_theme_onErrorContainer">#410E0B</color>
+    <color name="md_theme_error_container">#FFDAD6</color>
+    <color name="md_theme_onErrorContainer">#410002</color>
 
-    <color name="md_theme_background">#FFFBFE</color>
-    <color name="md_theme_onBackground">#1C1B1F</color>
-    <color name="md_theme_surface">#FFFBFE</color>
-    <color name="md_theme_onSurface">#1C1B1F</color>
-    <color name="md_theme_surfaceVariant">#E7E0EC</color>
-    <color name="md_theme_onSurfaceVariant">#49454F</color>
-    <color name="md_theme_outline">#79747E</color>
+    <!-- Background / Surface: 大地色, 暖米白 -->
+    <color name="md_theme_background">#F8F5F0</color>
+    <color name="md_theme_onBackground">#1C1B19</color>
+    <color name="md_theme_surface">#F8F5F0</color>
+    <color name="md_theme_onSurface">#1C1B19</color>
+    <color name="md_theme_surfaceVariant">#E2E0D9</color>
+    <color name="md_theme_onSurfaceVariant">#46483E</color>
+    <color name="md_theme_outline">#77786D</color>
 
-    <!-- 深色模式色彩 -->
-    <color name="md_theme_dark_primary">#D0BCFF</color>
-    <color name="md_theme_dark_onPrimary">#381E72</color>
-    <color name="md_theme_dark_primary_container">#4F378B</color>
-    <color name="md_theme_dark_onPrimaryContainer">#EADDFF</color>
+    <!-- ===== 深色主题 (Dark Theme) ===== -->
 
-    <color name="md_theme_dark_secondary">#CCC2DC</color>
-    <color name="md_theme_dark_secondary_container">#4A4458</color>
+    <color name="md_theme_dark_primary">#B5D1AC</color>
+    <color name="md_theme_dark_onPrimary">#253E1F</color>
+    <color name="md_theme_dark_primary_container">#3E5D37</color>
+    <color name="md_theme_dark_onPrimaryContainer">#D8E8CF</color>
 
-    <color name="md_theme_dark_tertiary">#EFB8C8</color>
-    <color name="md_theme_dark_tertiary_container">#633B48</color>
+    <color name="md_theme_dark_secondary">#A3C4D9</color>
+    <color name="md_theme_dark_secondary_container">#4A6B82</color>
 
-    <color name="md_theme_dark_background">#1C1B1F</color>
-    <color name="md_theme_dark_surface">#1C1B1F</color>
-    <color name="md_theme_dark_onSurface">#E6E1E5</color>
-    <color name="md_theme_dark_onSurfaceVariant">#CAC4D0</color>
+    <color name="md_theme_dark_tertiary">#CFBCF0</color>
+    <color name="md_theme_dark_tertiary_container">#6A5A8E</color>
+
+    <color name="md_theme_dark_background">#1A1C19</color>
+    <color name="md_theme_dark_surface">#1A1C19</color>
+    <color name="md_theme_dark_onSurface">#E3E1DB</color>
+    <color name="md_theme_dark_onSurfaceVariant">#C6C7BB</color>
+
+    <!-- 图标背景色 (芭蕉绿) -->
+    <color name="icon_bg_sage">#7D9B76</color>
 </resources>

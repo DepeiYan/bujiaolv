@@ -112,7 +112,7 @@ class ScreenMonitorService : Service() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "芭蕉绿屏幕监控",
+            "不蕉绿屏幕监控",
             NotificationManager.IMPORTANCE_LOW
         ).apply {
             description = "持续监控屏幕使用情况"
@@ -134,7 +134,7 @@ class ScreenMonitorService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("芭蕉绿运行中")
+            .setContentTitle("不蕉绿运行中")
             .setContentText("正在记录您的屏幕使用情况")
             .setSmallIcon(R.drawable.ic_monitor)
             .setContentIntent(pendingIntent)

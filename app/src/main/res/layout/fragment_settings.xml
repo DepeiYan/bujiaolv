@@ -227,14 +227,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="屏幕追踪器 v1.0"
+                    android:text="不蕉绿 v0.1"
                     android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="通过统计屏幕点亮次数、时间段和时长，帮助您认识和改善手机依赖问题。数据仅保存在本地，不会上传到任何服务器。"
+                    android:text="手机依赖症？蕉绿miss消息？我是'不蕉绿'，通过统计屏幕点亮次数、时间段和时长，帮助您认识和改善手机依赖问题。数据全在本地，不会上传到任何服务器，绝对的隐私安全。"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp" />
             </LinearLayout>

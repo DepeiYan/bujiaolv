@@ -13,13 +13,17 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.screentracker.databinding.ActivityMainBinding
 import com.screentracker.service.ScreenMonitorService
+import com.screentracker.ui.home.HomeViewModel
 import com.screentracker.util.PreferenceManager
 import kotlinx.coroutines.launch
+import androidx.activity.viewModels
+import androidx.navigation.ui.NavigationUI
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefManager: PreferenceManager
+    private val homeViewModel: HomeViewModel by viewModels()
 
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -41,7 +45,25 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
+
+        // 1. setupWithNavController 设置 destination change listener（同步底部导航选中状态）
         binding.bottomNavigation.setupWithNavController(navController)
+
+        // 2. 覆盖 item selected listener：点击"今日"时额外调用 goToToday()
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            if (item.itemId == R.id.navigation_home) {
+                homeViewModel.goToToday()
+            }
+            // 委托 NavigationUI 处理实际导航（含 singleTop 和 popUpTo）
+            NavigationUI.onNavDestinationSelected(item, navController)
+        }
+
+        // 3. 重复点击"今日"也回到今日天视图
+        binding.bottomNavigation.setOnItemReselectedListener { item ->
+            if (item.itemId == R.id.navigation_home) {
+                homeViewModel.goToToday()
+            }
+        }
     }
 
     /**

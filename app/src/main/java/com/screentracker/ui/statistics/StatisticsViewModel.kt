@@ -5,13 +5,14 @@ import androidx.lifecycle.*
 import com.screentracker.data.db.DailyCount
 import com.screentracker.data.db.DailyDuration
 import com.screentracker.data.repository.ScreenEventRepository
+import com.screentracker.ui.home.AnxietyLevel
 
 class StatisticsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = ScreenEventRepository(application)
 
     /** 当前选择的天数范围 */
-    private val _daysRange = MutableLiveData(7)
+    private val _daysRange = MutableLiveData(30)
     val daysRange: LiveData<Int> = _daysRange
 
     /** 日期范围 */
@@ -46,6 +47,27 @@ class StatisticsViewModel(application: Application) : AndroidViewModel(applicati
         return when {
             hours > 0 -> "${hours}小时${minutes}分"
             else -> "${minutes}分钟"
+        }
+    }
+
+    /**
+     * 将每日点亮次数转换为焦虑等级值 (1-5)
+     */
+    fun countToAnxietyLevel(count: Int): Int {
+        return AnxietyLevel.fromCount(count).level
+    }
+
+    /**
+     * 获取焦虑等级的颜色
+     */
+    fun getAnxietyColor(level: Int): Int {
+        return when (level) {
+            1 -> android.graphics.Color.parseColor("#81C784")  // 绿色
+            2 -> android.graphics.Color.parseColor("#A5D6A7")  // 浅绿
+            3 -> android.graphics.Color.parseColor("#FDD835")  // 黄色
+            4 -> android.graphics.Color.parseColor("#FF8A65")  // 橙红
+            5 -> android.graphics.Color.parseColor("#E57373")  // 红色
+            else -> android.graphics.Color.parseColor("#E0E0E0")
         }
     }
 }

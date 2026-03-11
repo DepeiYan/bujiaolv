@@ -13,6 +13,14 @@ interface ScreenEventDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(event: ScreenEvent): Long
 
+    /** 批量插入屏幕事件记录 */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(events: List<ScreenEvent>)
+
+    /** 清空所有记录 */
+    @Query("DELETE FROM screen_events")
+    suspend fun deleteAll()
+
     /** 更新屏幕事件记录 (补充screenOffTime和duration) */
     @Update
     suspend fun update(event: ScreenEvent)
@@ -64,6 +72,18 @@ interface ScreenEventDao {
     """)
     fun getHourlyDistribution(dateStr: String): LiveData<List<HourlyCount>>
 
+    /** 获取指定日期范围内每天的统计 (用于周视图) */
+    @Query("""
+        SELECT dateStr, 
+               COUNT(*) as count,
+               COALESCE(SUM(duration), 0) as totalDuration
+        FROM screen_events 
+        WHERE dateStr BETWEEN :startDate AND :endDate 
+        GROUP BY dateStr 
+        ORDER BY dateStr ASC
+    """)
+    fun getDailyStatsBetween(startDate: String, endDate: String): LiveData<List<DailyStats>>
+
     /** 删除指定日期之前的所有记录 (用于清理旧数据) */
     @Query("DELETE FROM screen_events WHERE dateStr < :dateStr")
     suspend fun deleteOlderThan(dateStr: String)
@@ -71,6 +91,18 @@ interface ScreenEventDao {
     /** 获取所有记录数 */
     @Query("SELECT COUNT(*) FROM screen_events")
     suspend fun getTotalCount(): Int
+
+    /** 获取指定日期范围内的点亮次数 (LiveData版本) */
+    @Query("SELECT COUNT(*) FROM screen_events WHERE dateStr BETWEEN :startDate AND :endDate")
+    fun getScreenOnCountBetween(startDate: String, endDate: String): LiveData<Int>
+
+    /** 获取指定日期范围内的总使用时长 (LiveData版本) */
+    @Query("SELECT COALESCE(SUM(duration), 0) FROM screen_events WHERE dateStr BETWEEN :startDate AND :endDate AND duration IS NOT NULL")
+    fun getTotalDurationBetween(startDate: String, endDate: String): LiveData<Long>
+
+    /** 获取指定日期范围内的所有屏幕事件 (按时间降序) */
+    @Query("SELECT * FROM screen_events WHERE dateStr BETWEEN :startDate AND :endDate ORDER BY screenOnTime DESC")
+    fun getEventsBetween(startDate: String, endDate: String): LiveData<List<ScreenEvent>>
 
     /** 获取指定日期的屏幕点亮次数 (suspend版本, 用于后台服务) */
     @Query("SELECT COUNT(*) FROM screen_events WHERE dateStr = :dateStr")
@@ -97,4 +129,11 @@ data class DailyDuration(
 data class HourlyCount(
     val hour: Int,
     val count: Int
+)
+
+/** 每日统计结果 (用于周视图) */
+data class DailyStats(
+    val dateStr: String,
+    val count: Int,
+    val totalDuration: Long
 )
