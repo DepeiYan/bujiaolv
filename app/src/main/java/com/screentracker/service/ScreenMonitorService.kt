@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.Handler
+import android.os.Looper
 import androidx.core.app.NotificationCompat
 import com.screentracker.MainActivity
 import com.screentracker.R
@@ -23,10 +25,32 @@ import kotlinx.coroutines.launch
 class ScreenMonitorService : Service() {
 
     private var screenReceiver: ScreenReceiver? = null
+    private val handler = Handler(Looper.getMainLooper())
+
+    /** 定时巡检：每5分钟检查是否有超时未关闭的事件 */
+    private val staleEventChecker = object : Runnable {
+        override fun run() {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val repository = ScreenEventRepository(this@ScreenMonitorService)
+                    val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                    if (!powerManager.isInteractive) {
+                        // 屏幕是熄灭的，关闭所有未关闭的事件
+                        repository.recordScreenOff()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            handler.postDelayed(this, STALE_CHECK_INTERVAL)
+        }
+    }
 
     companion object {
         const val CHANNEL_ID = "screen_monitor_channel"
         const val NOTIFICATION_ID = 1001
+        /** 定时巡检间隔：5分钟 */
+        const val STALE_CHECK_INTERVAL = 5 * 60 * 1000L
     }
 
     override fun onCreate() {
@@ -37,6 +61,9 @@ class ScreenMonitorService : Service() {
 
         // 服务启动时检查屏幕状态，处理未关闭的事件
         checkAndFixScreenState()
+
+        // 启动定时巡检
+        handler.postDelayed(staleEventChecker, STALE_CHECK_INTERVAL)
     }
 
     /**
@@ -64,6 +91,8 @@ class ScreenMonitorService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        // 停止定时巡检
+        handler.removeCallbacks(staleEventChecker)
         unregisterScreenReceiver()
 
         // 服务被销毁时，尝试关闭未关闭的事件

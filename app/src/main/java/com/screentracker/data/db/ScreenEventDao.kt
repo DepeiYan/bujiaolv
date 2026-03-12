@@ -29,6 +29,10 @@ interface ScreenEventDao {
     @Query("SELECT * FROM screen_events WHERE screenOffTime IS NULL ORDER BY screenOnTime DESC LIMIT 1")
     suspend fun getLatestOpenEvent(): ScreenEvent?
 
+    /** 获取所有未关闭的屏幕事件 */
+    @Query("SELECT * FROM screen_events WHERE screenOffTime IS NULL ORDER BY screenOnTime ASC")
+    suspend fun getAllOpenEvents(): List<ScreenEvent>
+
     /** 获取指定日期的所有屏幕事件 (按时间降序) */
     @Query("SELECT * FROM screen_events WHERE dateStr = :dateStr ORDER BY screenOnTime DESC")
     fun getEventsByDate(dateStr: String): LiveData<List<ScreenEvent>>

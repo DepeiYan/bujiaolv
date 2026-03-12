@@ -14,23 +14,44 @@ import kotlinx.coroutines.launch
 /**
  * 屏幕状态广播接收器
  * 监听 ACTION_SCREEN_ON 和 ACTION_SCREEN_OFF 事件
+ *
+ * 使用 goAsync() 确保数据库写入完成后再释放 BroadcastReceiver，
+ * 避免系统在协程完成前回收进程导致 SCREEN_OFF 事件丢失。
  */
 class ScreenReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val repository = ScreenEventRepository(context)
 
+        // goAsync() 告知系统：我还有异步工作要做，先别回收我
+        val pendingResult = goAsync()
+
         when (intent.action) {
             Intent.ACTION_SCREEN_ON -> {
                 CoroutineScope(Dispatchers.IO).launch {
-                    repository.recordScreenOn()
-                    checkUsageGoal(context, repository)
+                    try {
+                        repository.recordScreenOn()
+                        checkUsageGoal(context, repository)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
             }
             Intent.ACTION_SCREEN_OFF -> {
                 CoroutineScope(Dispatchers.IO).launch {
-                    repository.recordScreenOff()
+                    try {
+                        repository.recordScreenOff()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
+            }
+            else -> {
+                pendingResult.finish()
             }
         }
     }

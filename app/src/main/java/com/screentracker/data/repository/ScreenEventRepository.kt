@@ -15,12 +15,19 @@ class ScreenEventRepository(context: Context) {
     private val dao: ScreenEventDao = AppDatabase.getInstance(context).screenEventDao()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+    companion object {
+        /** 合理的单次使用最大时长: 30分钟 */
+        const val MAX_REASONABLE_DURATION = 30 * 60 * 1000L
+        /** SCREEN_OFF 丢失时的默认估算时长: 2分钟 */
+        const val DEFAULT_DURATION = 2 * 60 * 1000L
+    }
+
     /** 记录屏幕点亮事件 */
     suspend fun recordScreenOn(): Long {
         val now = System.currentTimeMillis()
         val todayStr = dateFormat.format(Date(now))
 
-        // 先关闭所有未关闭的事件（处理应用被kill后重启的情况）
+        // 先关闭所有未关闭的事件（处理 SCREEN_OFF 丢失的情况）
         closeAllOpenEvents(now)
 
         val event = ScreenEvent(
@@ -30,15 +37,37 @@ class ScreenEventRepository(context: Context) {
         return dao.insert(event)
     }
 
-    /** 关闭所有未关闭的屏幕事件 */
+    /**
+     * 关闭所有未关闭的屏幕事件
+     *
+     * 当 SCREEN_OFF 广播丢失时，下一次 SCREEN_ON 会调用此方法。
+     * 如果上一个事件距今超过 MAX_REASONABLE_DURATION，说明 OFF 事件丢失了，
+     * 此时使用默认时长（DEFAULT_DURATION）来估算，避免出现几小时的异常使用时长。
+     */
     private suspend fun closeAllOpenEvents(closeTime: Long) {
-        val openEvent = dao.getLatestOpenEvent() ?: return
-        // 如果存在未关闭的事件，将其关闭
-        val updatedEvent = openEvent.copy(
-            screenOffTime = closeTime,
-            duration = closeTime - openEvent.screenOnTime
-        )
-        dao.update(updatedEvent)
+        val openEvents = dao.getAllOpenEvents()
+        if (openEvents.isEmpty()) return
+
+        for (openEvent in openEvents) {
+            val elapsed = closeTime - openEvent.screenOnTime
+
+            // 判断是否为 SCREEN_OFF 丢失的异常情况
+            val (offTime, duration) = if (elapsed > MAX_REASONABLE_DURATION) {
+                // 超过合理时长，说明 OFF 事件丢失了
+                // 用 screenOnTime + 默认时长作为估算结束时间
+                val estimatedOff = openEvent.screenOnTime + DEFAULT_DURATION
+                Pair(estimatedOff, DEFAULT_DURATION)
+            } else {
+                // 正常情况，用当前时间关闭
+                Pair(closeTime, elapsed)
+            }
+
+            val updatedEvent = openEvent.copy(
+                screenOffTime = offTime,
+                duration = duration
+            )
+            dao.update(updatedEvent)
+        }
     }
 
     /** 记录屏幕熄灭事件 (更新最近的未关闭事件) */
@@ -49,13 +78,17 @@ class ScreenEventRepository(context: Context) {
         // 如果屏幕点亮时间大于当前时间（异常情况），忽略
         if (openEvent.screenOnTime > now) return
 
-        // 如果持续时间超过24小时，可能是异常数据，限制为24小时
-        val maxDuration = 24 * 60 * 60 * 1000L // 24小时
         val duration = now - openEvent.screenOnTime
-        val finalDuration = if (duration > maxDuration) maxDuration else duration
+
+        // 如果持续时间超过合理范围，用默认时长
+        val finalDuration = if (duration > MAX_REASONABLE_DURATION) {
+            DEFAULT_DURATION
+        } else {
+            duration
+        }
 
         val updatedEvent = openEvent.copy(
-            screenOffTime = now,
+            screenOffTime = openEvent.screenOnTime + finalDuration,
             duration = finalDuration
         )
         dao.update(updatedEvent)
